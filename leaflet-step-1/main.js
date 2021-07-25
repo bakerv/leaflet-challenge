@@ -1,10 +1,41 @@
 let url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson";
-var queryUrl = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2014-01-01&endtime=" +
-"2014-01-02&maxlongitude=-69.52148437&minlongitude=-123.83789062&maxlatitude=48.74894534&minlatitude=25.16517337"
-
 
 d3.json(url).then(data => {
     console.log(data.features);
+
+    var earthquakes = L.geoJSON(data.features, {
+        pointToLayer: function(feature, latlng) {
+
+            var colorScale = ""
+            if (feature.geometry.coordinates[2] < 10){
+                colorScale = "green";
+            }
+            else if (feature.geometry.coordinates[2] < 20){
+                colorScale = "red";
+            }
+            else if (feature.geometry.coordinates[2] < 30){
+                colorScale = "blue";
+            }
+            else if (feature.geometry.coordinates[2] < 40){
+                colorScale = "orange";
+            }
+            else {
+                colorScale = "black"
+            }
+
+            var markerAttributes = {
+                radius:  5 ** feature.properties.mag /1000 ,
+                color: colorScale,
+                weight: 0,
+                fillOpacity: 0.8
+            }
+
+            return L.circleMarker(latlng,markerAttributes)
+                .bindPopup("<strong>" +feature.properties.title +"</strong>" + "<br>" +Date(feature.properties.time));
+        }
+    });
+
+    generateMap(earthquakes)
 });
 
 function generateMap(earthquakes) {
@@ -17,7 +48,13 @@ function generateMap(earthquakes) {
     accessToken: API_KEY
     });
 
-    var overlapMaps = {}
+    var overlayMaps = {
+        Earthquakes: earthquakes
+    };
+
+    var baseMaps = {
+        "Street Map": streetmap
+    };
     var myMap = L.map("map", {
         center: [37.09,-95.71],
         zoom: 5,
@@ -26,5 +63,10 @@ function generateMap(earthquakes) {
 
     L.control.layers(baseMaps, overlayMaps, {
         collapsed: false }).addTo(myMap);
+    }
 
+function bindFeatures(feature,layer) {
+    layer.bindPopup(feature.properties.title);
 }
+
+
