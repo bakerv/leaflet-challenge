@@ -10,3 +10,19 @@ body,
 html {
   height: 100%;
 }
+
+.legend {
+  line-height: 30px;
+  color: black;
+  background-color: lightgrey;
+  padding: 10px;
+  border-radius: 4px;
+  
+}
+.legend i {
+  width: 30px;
+  height: 30px;
+  float: left;
+  margin-right: 8px;
+  opacity: 0.7;
+}
