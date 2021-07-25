@@ -11,20 +11,20 @@ d3.json(url).then(data => {
                 colorScale = "green";
             }
             else if (feature.geometry.coordinates[2] < 20){
-                colorScale = "red";
+                colorScale = "blue";
             }
             else if (feature.geometry.coordinates[2] < 30){
-                colorScale = "blue";
+                colorScale = "yellow";
             }
             else if (feature.geometry.coordinates[2] < 40){
                 colorScale = "orange";
             }
             else {
-                colorScale = "black"
+                colorScale = "red"
             }
             // dynamic attributes to pass to L.circleMarker() 
             var markerAttributes = {
-                radius:  5 ** feature.properties.mag /1000 ,
+                radius: 10 + (5 ** feature.properties.mag /1000) ,
                 color: colorScale,
                 weight: 0,
                 fillOpacity: 0.8
