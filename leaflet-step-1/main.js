@@ -5,7 +5,7 @@ d3.json(url).then(data => {
 
     var earthquakes = L.geoJSON(data.features, {
         pointToLayer: function(feature, latlng) {
-
+            // dynamically color the markers, based on the depth of the earthquake
             var colorScale = ""
             if (feature.geometry.coordinates[2] < 10){
                 colorScale = "green";
@@ -22,14 +22,14 @@ d3.json(url).then(data => {
             else {
                 colorScale = "black"
             }
-
+            // dynamic attributes to pass to L.circleMarker() 
             var markerAttributes = {
                 radius:  5 ** feature.properties.mag /1000 ,
                 color: colorScale,
                 weight: 0,
                 fillOpacity: 0.8
             }
-
+            // for each feature, create a circular marker, and bind a popup to that marker
             return L.circleMarker(latlng,markerAttributes)
                 .bindPopup("<strong>" +feature.properties.title +"</strong>" + "<br>" +Date(feature.properties.time));
         }
