@@ -1,6 +1,4 @@
 let earthquake_url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson";
-
-
 let boundaries_url = "../data/PB2002_boundaries.json"
 
 var map = L.map("map", {
@@ -18,91 +16,81 @@ id: "mapbox/streets-v11",
 accessToken: API_KEY
 }).addTo(map);
 
-d3.json(boundaries_url).then(rawdata => {
-    var boundaries = L.geoJSON(rawdata.features)
-    boundaries.addTo(map);
-});
+var overlayMaps = {
+    Earthquakes: new L.LayerGroup(),
+    Boundaries: new L.LayerGroup()
+};
+
+var baseMaps = {
+    "Street Map": streetmap
+};
+
+L.control.layers(baseMaps, overlayMaps, {
+    collapsed: false 
+}).addTo(map);
 
 
-// retrieve the json from the URL and generate the map
-d3.json(earthquake_url).then(data => {
-    plotEarthquakes(data,map)
-});
-
-// generates the map using leaflet and geojson data
-function plotEarthquakes(data,map) {
-    // generates a marker on the map for each earthquake in the data set
-    var earthquakes = L.geoJSON(data.features, {
-        pointToLayer: function(feature, latlng) {
-       
-            // dynamic attributes to pass to L.circleMarker() 
-            var markerAttributes = {
-                radius: 10 + (5 ** feature.properties.mag /1000),
-                color: 'black',
-                fillColor: setColor(feature.geometry.coordinates[2]),
-                weight: 1,
-                fillOpacity: 0.8
-            };
-
-            var date = new Date(feature.properties.time).toString();
-            // generate the circular marker, and bind a popup to that marker
-            return L.circleMarker(latlng,markerAttributes)
-                .bindPopup("<strong>" +feature.properties.title + "</strong>" + "<br>" 
-                + date + "<br><br>"
-                + "Latitude:" + feature.geometry.coordinates[0] + "<br>"
-                + "Longitude: "+ feature.geometry.coordinates[1] + "<br>"
-                +"Depth: "+ feature.geometry.coordinates[2] + " km");
-        }
-        
+function addBoundaries(data,map) {
+    d3.json(data).then(rawdata => {
+        var boundaries = L.geoJSON(rawdata.features)
+        boundaries.addTo(map)
+        boundaries.addTo(overlayMaps["Boundaries"]);
     });
-    earthquakes.addTo(map);
 }
 
+// generates the map using leaflet and geojson data
+function plotEarthquakes(dataSet,map) {
+    d3.json(dataSet).then(data =>{
+        // generates a marker on the map for each earthquake in the data set
+        var earthquakes = L.geoJSON(data.features, {
+            pointToLayer: function(feature, latlng) {
+        
+                // dynamic attributes to pass to L.circleMarker() 
+                var markerAttributes = {
+                    radius: 10 + (5 ** feature.properties.mag /1000),
+                    color: 'black',
+                    fillColor: setColor(feature.geometry.coordinates[2]),
+                    weight: 1,
+                    fillOpacity: 0.8
+                };
+
+                var date = new Date(feature.properties.time).toString();
+                // generate the circular marker, and bind a popup to that marker
+                return L.circleMarker(latlng,markerAttributes)
+                    .bindPopup("<strong>" +feature.properties.title + "</strong>" + "<br>" 
+                    + date + "<br><br>"
+                    + "Latitude:" + feature.geometry.coordinates[0] + "<br>"
+                    + "Longitude: "+ feature.geometry.coordinates[1] + "<br>"
+                    +"Depth: "+ feature.geometry.coordinates[2] + " km");
+            }
+            
+        });
+        earthquakes.addTo(map)
+        earthquakes.addTo(overlayMaps["Earthquakes"]);
+    });
+}
+
+function addLegend(map) {
+    var legend = L.control({position:"bottomleft"});
+
+    legend.onAdd = function(myMap) {
+        var div = L.DomUtil.create("div", "legend");
+        div.innerHTML += '<h3>Depth (km)</h3>';
+        div.innerHTML += '<i style="background: #ffffcc"></i><span>0-10</span><br>';
+        div.innerHTML += '<i style="background: #ffeda0"></i><span>11-20</span><br>';
+        div.innerHTML += '<i style="background: #fed976"></i><span>21-30</span><br>';
+        div.innerHTML += '<i style="background: #feb24c"></i><span>31-40</span><br>';
+        div.innerHTML += '<i style="background: #fd8d3c"></i><span>41-50</span><br>';
+        div.innerHTML += '<i style="background: #fc4e2a"></i><span>51-60</span><br>';
+        div.innerHTML += '<i style="background: #e31a1c"></i><span>61-70</span><br>';
+        div.innerHTML += '<i style="background: #b10026"></i><span> >70</span><br>';
 
 
-//     var boundaries = L.tileLayer("https://github.com/fraxen/tectonicplates/blob/b53c3b7d82afd764650ebdc4565b9666795b9d83/GeoJSON/PB2002_boundaries.json")
+        return div;
+    }
 
-//     var overlayMaps = {
-//         Earthquakes: earthquakes,
-//         Boundaries: boundaries
-//     };
-
-//     var baseMaps = {
-//         "Street Map": streetmap
-//     };
-
-//     var myMap = L.map("map", {
-//         center: [37.09,-95.71],
-//         zoom: 5,
-//         layers: [streetmap,
-//         earthquakes],
-//         worldCopyJump: "True"
-//     });
-
-//     L.control.layers(baseMaps, overlayMaps, {
-//         collapsed: false 
-//     }).addTo(myMap);
-
-//     var legend = L.control({position:"bottomleft"});
-
-//     legend.onAdd = function(myMap) {
-//         var div = L.DomUtil.create("div", "legend");
-//         div.innerHTML += '<h3>Depth (km)</h3>';
-//         div.innerHTML += '<i style="background: #ffffcc"></i><span>0-10</span><br>';
-//         div.innerHTML += '<i style="background: #ffeda0"></i><span>11-20</span><br>';
-//         div.innerHTML += '<i style="background: #fed976"></i><span>21-30</span><br>';
-//         div.innerHTML += '<i style="background: #feb24c"></i><span>31-40</span><br>';
-//         div.innerHTML += '<i style="background: #fd8d3c"></i><span>41-50</span><br>';
-//         div.innerHTML += '<i style="background: #fc4e2a"></i><span>51-60</span><br>';
-//         div.innerHTML += '<i style="background: #e31a1c"></i><span>61-70</span><br>';
-//         div.innerHTML += '<i style="background: #b10026"></i><span> >70</span><br>';
-
-
-//         return div;
-//     }
-
-//     legend.addTo(myMap);
-// };
+    legend.addTo(map);
+}
 
 function setColor(data) {
     var colorScale = ""
@@ -134,4 +122,6 @@ function setColor(data) {
     return colorScale;
 }
 
-
+addBoundaries(boundaries_url,map);
+plotEarthquakes(earthquake_url,map);
+addLegend(map);
