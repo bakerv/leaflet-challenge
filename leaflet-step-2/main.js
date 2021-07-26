@@ -1,5 +1,5 @@
 let earthquake_url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson";
-let boundaries_url = "../data/PB2002_boundaries.json"
+let boundaries_url = "https://github.com/fraxen/tectonicplates/blob/b53c3b7d82afd764650ebdc4565b9666795b9d83/GeoJSON/PB2002_boundaries.json"
 
 // retrieve the json from the URL and generate the map
 d3.json(earthquake_url).then(data => {
@@ -7,7 +7,7 @@ d3.json(earthquake_url).then(data => {
 });
 
 d3.json(boundaries_url).then(data =>{
-    console.log(data.features);
+    console.log(data);
 });
 
 // generates the map using leaflet and geojson data
@@ -36,8 +36,6 @@ function generateMap(data) {
         
     });
 
-    var boundaries = L.geoJSON(boundaries_url.features);
-
     var streetmap = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
     attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
     tileSize: 512,
@@ -47,7 +45,7 @@ function generateMap(data) {
     accessToken: API_KEY
     });
 
-    
+    var boundaries = L.tileLayer("https://github.com/fraxen/tectonicplates/blob/b53c3b7d82afd764650ebdc4565b9666795b9d83/GeoJSON/PB2002_boundaries.json")
 
     var overlayMaps = {
         Earthquakes: earthquakes,
@@ -61,10 +59,8 @@ function generateMap(data) {
     var myMap = L.map("map", {
         center: [37.09,-95.71],
         zoom: 5,
-        layers: [
-            streetmap,
-            earthquakes,
-            boundaries],
+        layers: [streetmap,
+        earthquakes],
         worldCopyJump: "True"
     });
 
