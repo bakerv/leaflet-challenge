@@ -4,10 +4,12 @@ let boundaries_url = "../data/PB2002_boundaries.json"
 // retrieve the json from the URL and generate the map
 d3.json(earthquake_url).then(data => {
     generateMap(data)
+
+    d3.json(boundaries_url).then(data =>{
+        console.log(data.features);
 });
 
-d3.json(boundaries_url).then(data =>{
-    console.log(data.features);
+
 });
 
 // generates the map using leaflet and geojson data

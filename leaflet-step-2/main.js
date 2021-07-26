@@ -1,10 +1,19 @@
 let earthquake_url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson";
 let boundaries_url = "../data/PB2002_boundaries.json"
 
+var overlayMaps = {
+    Earthquakes: new L.LayerGroup(),
+    Boundaries: new L.LayerGroup()
+};
+
 var map = L.map("map", {
     center: [37.09,-95.71],
     zoom: 5,
-    worldCopyJump: "True"
+    worldCopyJump: "True",
+    layers: [
+        overlayMaps.Earthquakes,
+        overlayMaps.Boundaries
+    ]
 });
 
 var streetmap = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
@@ -16,10 +25,6 @@ id: "mapbox/streets-v11",
 accessToken: API_KEY
 }).addTo(map);
 
-var overlayMaps = {
-    Earthquakes: new L.LayerGroup(),
-    Boundaries: new L.LayerGroup()
-};
 
 var baseMaps = {
     "Street Map": streetmap
@@ -65,7 +70,7 @@ function plotEarthquakes(dataSet,map) {
             }
             
         });
-        earthquakes.addTo(map)
+        earthquakes.addTo(map);
         earthquakes.addTo(overlayMaps["Earthquakes"]);
     });
 }
@@ -85,10 +90,8 @@ function addLegend(map) {
         div.innerHTML += '<i style="background: #e31a1c"></i><span>61-70</span><br>';
         div.innerHTML += '<i style="background: #b10026"></i><span> >70</span><br>';
 
-
         return div;
     }
-
     legend.addTo(map);
 }
 
