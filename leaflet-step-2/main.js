@@ -1,4 +1,4 @@
-// let earthquake_url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson";
+let earthquake_url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson";
 
 
 let boundaries_url = "../data/PB2002_boundaries.json"
@@ -17,46 +17,46 @@ zoomOffset: -1,
 id: "mapbox/streets-v11",
 accessToken: API_KEY
 }).addTo(map);
+
 d3.json(boundaries_url).then(rawdata => {
     var boundaries = L.geoJSON(rawdata.features)
     boundaries.addTo(map);
 });
 
 
-// // retrieve the json from the URL and generate the map
-// d3.json(earthquake_url).then(data => {
-//     generateMap(data)
-// });
+// retrieve the json from the URL and generate the map
+d3.json(earthquake_url).then(data => {
+    plotEarthquakes(data,map)
+});
 
-// d3.json(boundaries_url).then(data =>{
-//     console.log(data);
-// });
-
-// // generates the map using leaflet and geojson data
-// function generateMap(data) {
-//     // generates a marker on the map for each earthquake in the data set
-//     var earthquakes = L.geoJSON(data.features, {
-//         pointToLayer: function(feature, latlng) {
+// generates the map using leaflet and geojson data
+function plotEarthquakes(data,map) {
+    // generates a marker on the map for each earthquake in the data set
+    var earthquakes = L.geoJSON(data.features, {
+        pointToLayer: function(feature, latlng) {
        
-//             // dynamic attributes to pass to L.circleMarker() 
-//             var markerAttributes = {
-//                 radius: 10 + (5 ** feature.properties.mag /1000),
-//                 color: 'black',
-//                 fillColor: setColor(feature.geometry.coordinates[2]),
-//                 weight: 1,
-//                 fillOpacity: 0.8
-//             };
-//             var date = new Date(feature.properties.time).toString();
-//             // generate the circular marker, and bind a popup to that marker
-//             return L.circleMarker(latlng,markerAttributes)
-//                 .bindPopup("<strong>" +feature.properties.title + "</strong>" + "<br>" 
-//                 + date + "<br><br>"
-//                 + "Latitude:" + feature.geometry.coordinates[0] + "<br>"
-//                 + "Longitude: "+ feature.geometry.coordinates[1] + "<br>"
-//                 +"Depth: "+ feature.geometry.coordinates[2] + " km");
-//         }
+            // dynamic attributes to pass to L.circleMarker() 
+            var markerAttributes = {
+                radius: 10 + (5 ** feature.properties.mag /1000),
+                color: 'black',
+                fillColor: setColor(feature.geometry.coordinates[2]),
+                weight: 1,
+                fillOpacity: 0.8
+            };
+
+            var date = new Date(feature.properties.time).toString();
+            // generate the circular marker, and bind a popup to that marker
+            return L.circleMarker(latlng,markerAttributes)
+                .bindPopup("<strong>" +feature.properties.title + "</strong>" + "<br>" 
+                + date + "<br><br>"
+                + "Latitude:" + feature.geometry.coordinates[0] + "<br>"
+                + "Longitude: "+ feature.geometry.coordinates[1] + "<br>"
+                +"Depth: "+ feature.geometry.coordinates[2] + " km");
+        }
         
-//     });
+    });
+    earthquakes.addTo(map);
+}
 
 
 
@@ -104,34 +104,34 @@ d3.json(boundaries_url).then(rawdata => {
 //     legend.addTo(myMap);
 // };
 
-// function setColor(data) {
-//     var colorScale = ""
-//     if (data <= 10){
-//         colorScale = "#ffffcc";
-//     }
-//     else if (data <= 20){
-//         colorScale = "#ffeda0";
-//     }
-//     else if (data <= 30){
-//         colorScale = "#fed976";
-//     }
-//     else if (data <= 40){
-//         colorScale = "#feb24c";
-//     }
-//     else if (data <= 50){
-//         colorScale = "#fd8d3c";
-//     }
-//     else if (data <= 60){
-//         colorScale = "#fc4e2a";
-//     }
-//     else if (data <= 70){
-//         colorScale = "#e31a1c";
-//     }
-//     else {
-//         colorScale = "#b10026"
-//     }
+function setColor(data) {
+    var colorScale = ""
+    if (data <= 10){
+        colorScale = "#ffffcc";
+    }
+    else if (data <= 20){
+        colorScale = "#ffeda0";
+    }
+    else if (data <= 30){
+        colorScale = "#fed976";
+    }
+    else if (data <= 40){
+        colorScale = "#feb24c";
+    }
+    else if (data <= 50){
+        colorScale = "#fd8d3c";
+    }
+    else if (data <= 60){
+        colorScale = "#fc4e2a";
+    }
+    else if (data <= 70){
+        colorScale = "#e31a1c";
+    }
+    else {
+        colorScale = "#b10026"
+    }
 
-//     return colorScale;
-// }
+    return colorScale;
+}
 
 
